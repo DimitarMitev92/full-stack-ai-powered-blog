@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./configs/db.js";
 
 import adminRouter from "./routes/adminRoutes.js";
+import blogRouter from "./routes/blogRoutes.js";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.get("/", (req, res) => {
 });
 // Admin Routes
 app.use("/api/admin", adminRouter);
+app.use("/api/blog", blogRouter);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
