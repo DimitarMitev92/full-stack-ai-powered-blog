@@ -1,6 +1,7 @@
 import fs from "fs";
 import imagekit from "../configs/imageKit.js";
 import Blog from "../models/Blog.js";
+import Comment from "../models/Comment.js";
 
 export const addBlog = async (req, res) => {
   try {
@@ -86,6 +87,8 @@ export const deleteBlogById = async (req, res) => {
       return res
         .status(404)
         .json({ message: "Blog not found", success: false });
+    // Delete all comments related to the blog
+    await Comment.deleteMany({ blog: id });
     res
       .status(200)
       .json({ message: "Blog deleted successfully", success: true });
@@ -107,6 +110,31 @@ export const togglePublish = async (req, res) => {
     res
       .status(200)
       .json({ message: "Blog updated successfully", success: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message, success: false });
+  }
+};
+
+export const addComment = async (req, res) => {
+  try {
+    const { blog, name, content } = req.body;
+    await Comment.create({ blog, name, content });
+    res
+      .status(200)
+      .json({ message: "Comment added for review", success: true });
+  } catch (error) {
+    res.status(500).json({ message: error.message, success: false });
+  }
+};
+
+export const getBlogComments = async (req, res) => {
+  try {
+    const { blogId } = req.body;
+    const comments = await Comment.find({
+      blog: blogId,
+      isApproved: true,
+    }).sort({ createdAt: -1 });
+    res.status(200).json({ comments, success: true });
   } catch (error) {
     res.status(500).json({ message: error.message, success: false });
   }
