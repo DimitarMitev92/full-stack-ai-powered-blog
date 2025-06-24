@@ -7,7 +7,7 @@ import { useAppContext } from "../context/AppContext";
 const BlogList = () => {
   const [menu, setMenu] = useState("All");
   const { blogs, input } = useAppContext();
-  console.log(blogs);
+
   const filteredBlogs = () => {
     if (input === "") {
       return blogs;
