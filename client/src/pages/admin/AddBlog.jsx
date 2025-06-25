@@ -2,11 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { assets, blogCategories } from "../../assets/assets";
 import Quill from "quill";
 import { useAppContext } from "../../context/AppContext";
-
+import toast from "react-hot-toast";
+import { parse } from "marked";
 const AddBlog = () => {
   const { axios } = useAppContext();
 
   const [isAdding, setIsAdding] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const editorRef = useRef(null);
   const quillRef = useRef(null);
@@ -17,7 +19,25 @@ const AddBlog = () => {
   const [category, setCategory] = useState("");
   const [isPublished, setIsPublished] = useState(false);
 
-  const generateContent = async () => {};
+  const generateContent = async () => {
+    if (!title) return toast.error("Title is required");
+
+    try {
+      setLoading(true);
+      const { data } = await axios.post("/api/blog/generate", {
+        prompt: title,
+      });
+      if (data.success) {
+        quillRef.current.root.innerHTML = parse(data.content);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onSubmitHandler = async (e) => {
     try {
@@ -113,6 +133,7 @@ const AddBlog = () => {
             type="button"
             onClick={generateContent}
             className="absolute bottom-1 right-2 ml-2 text-xs text-white bg-black/70 px-4 py-1.5 rounded hover:underline cursor-pointer"
+            disabled={loading}
           >
             Generate with AI
           </button>
